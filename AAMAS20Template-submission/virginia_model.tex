@@ -1,3 +1,220 @@
-\subsection{The Virginia Model}
+\subsection{The Virginia Model} \label{virginia_model}
+We build a statistical model to identify features that contribute to a household's decision to adopt rooftop solar panels.
+However, due to low penetration of solar adopters in rural regions, the data on
+solar adopters is sparse, which makes it difficult to build a good
+prediction model. Given highly imbalanced training data, traditional statistical methods
+tend to predict most households to be non-adopters in order to minimize
+the mis-classification error and provide high overall prediction
+accuracy.
 
-The Virginia model was developed by Hu et al.~\cite{hu19rooftop} and Gupta et al.~\cite{gupta18rooftop_css}.
+In our study, we are more interested in identifying potential adopters
+so we apply a decision-adjusted modeling approach 
+from Mao et al.~\cite{Mao}, and Hu et al.~\cite{hu19rooftop}. The decision-adjusted
+approach optimizes the prediction model with respect to a user-stated
+evaluation criterion. We set this criteria to maximize the sum of True
+Positive Rate and True Negative Rate. The decision-adjusted approach can be applied to
+different statistical models, here we choose logistic regression model as
+our baseline model.
+
+
+
+\begin{table}[H]
+	\centering
+	\caption{This table provides the list of features used in the
+          regression model.}
+	\begin{tabular}{|l|p{5cm}|}
+		\hline
+		{\bf Feature} & {\bf Description} \\ 
+		\hline
+		acreage & Acreage of the house. \\ 
+		\hline
+		area\_type & Rural (0) or urban (1). \\ 
+		\hline
+		asrYear & Year house was built.  \\ 
+		\hline
+		baths & Num of bathrooms. \\ 
+		\hline
+		bedrooms & Num of bedrooms. \\ 
+		\hline
+		NPV & Net Present Value. \\ 
+		\hline
+		climateRegionPub & Type of climate. \\ 
+		\hline
+		dailyConsumption & Avg. electricity used in Watt
+                                   hrs. \\ 
+		\hline
+		education & Highest education achieved. \\ 
+		\hline
+	    fuelheat & Type of fuel used for heat. \\ 
+	    \hline
+		income & Household's yearly income.  \\ 
+		\hline
+		numCarStorage & Num. of car storage in the house. \\
+		\hline 
+		sqFootage & Sq. footage of the house.  \\ 
+		\hline
+		swimpool & Pool present or not. \\ 
+		\hline
+		totalVal & Estimated house value. \\
+		\hline 
+		typehuq & Type of housing unit. \\ 
+		\hline
+		householdSize & Family size. \\ 
+		\hline
+		X1Mile & Adopters within 1 mile. \\ 
+		X2Mile & Adopters within 2 mile. \\ 
+		X3Mile & Adopters within 3 mile. \\ 
+		X4Mile & Adopters within 4 mile. \\ 
+		\hline
+	\end{tabular}
+	\label{tab: feature description}
+\end{table}
+
+The decision-adjusted solar adopter prediction model is as
+follows. Suppose a prediction model is obtained from data
+$\{X_i,I_i(\delta),Y_i\}_{i=1}^n$, where $X_i$ are the demographic features as
+shown in Table~\ref{tab: feature description}.  $Y_i$ is the response,
+$Y_i = 1$ means household is an adopter and $Y_i = 0$ means non-adopter, $I_i(\delta)$ are the indicator features for corresponding demographic features, which is defined as
+\begin{equation*}
+I_i(\delta)=\left\{
+\begin{array}{@{}ll@{}}
+1, & \text{if }X_i > \delta;\\
+0, & \text{if }X_i \leq \delta,
+\end{array}\right.
+\end{equation*}
+
+The indicator features are introduced when the coefficients of linear combination are not able to
+capture all information in the model. For example, if the coefficient of a feature
+is positive, then a larger value of the feature will increase the
+likelihood of adoption. However, this positive relationship may not be
+constant; it may be strong when the value of the
+feature is small, and weak when the value of the feature is
+large. The indicator features address this issue.
+
+The logistic regression model has the link function below,
+\begin{align*}
+\text{Pr}(Y=1|X, I(\delta))=\frac{exp\Big(\big(X, I(\delta)\big)^T\beta\Big)}{1+exp\Big(\big(X, I(\delta)\big)^T\beta\Big)}
+\end{align*}
+Where $\beta$ is the regression coefficient. For the logistic regression with elastic net, $\beta$ is estimated through maximizing a penalized log-likelihood $l(\beta)-P(\beta,\alpha,\lambda)$, where 
+\begin{align*}
+P(\beta,\alpha,\lambda)=\lambda\big((1-\alpha)\frac{1}{2}||\beta||_2^2+\alpha||\beta||_1\big)
+\end{align*}
+
+
+The predicted label for this household is determined by the following, where $\tau$ is the threshold probability for determining whether a household is adopter or not. 
+\begin{equation*}
+\hat{Y_i}=\hat{Y_i}(X_i,I_i(\delta),\alpha,\lambda,\tau)=\left\{
+\begin{array}{@{}ll@{}}
+1, & \text{if Pr}(Y_i=1)\ge \tau \\
+0, & \text{if Pr}(Y_i=1)< \tau
+\end{array}\right.
+\end{equation*}
+Then the optimization problem for our decision-adjusted model is
+\begin{equation*}
+\max_{\delta,\alpha,\lambda,\tau} \Omega\Big(\hat{Y_i}(X_i,I_i(\delta),\alpha,\lambda,\tau),Y\Big)
+\end{equation*}
+Where $\Omega(\cdot)$ is a function of predicted label
+$\hat{Y_i}(X_i,I_i(\delta),\alpha,\lambda,\tau)$, and true label
+$Y$. It is determined by the specific goals of the study, as defined
+by the user. 
+
+In the decision adjusted model, we want to maximize ($\Omega=$
+TPR$+$TNR) given $\tau$ and $\delta$. Here `TPR' refers to true
+positive rate, `TNR' refers to true negative rate, `FP' refers to false positives, and `FN' refers to false negatives. The TPR$+$TNR is defined as:
+
+%\begin{equation*}
+%\Omega=\text{TPR}+\text{TNR}=\frac{TP}{TP+FN}+\frac{TN}{TN+FP}.
+%\end{equation*}
+
+\begin{equation*}
+            \Omega=\frac{TP}{TP+FN}+\frac{TN}{TN+FP}=\frac{TP}{Condition\ positives}+\frac{TN}{Condition\ negatives},
+        \end{equation*}
+
+This is an improvement over accuracy as the performance matrix, which
+is given by:
+
+\begin{equation*}
+        \text{ACCURACY}=\frac{TP+TN}{TP+FN+TN+FP}=\frac{TP+TN}{n}.
+        \end{equation*}
+
+
+Table \ref{tab: model coefficients} summarizes the model results. The climateRegion, education, fuelheat, type of housing unit are categorical features, the coefficient for each level are shown in the table.
+
+The tuning paraments selected from the decision-adjusted approach are: \\
+$\bullet$ $\tau = 0.0022$, a household with predicted probability greater than 0.0022 is classified as an adopter.\\
+$\bullet$ $\lambda = 0.000303$, $\alpha = 0.4$, which are values of tuning parameters in enet penalty.\\
+$\bullet$ $\delta(\text{totalVal}) = 75000$, if the value of feature totalVal is greater than 75000, then the value of the corresponding indicator feature is 1.\\
+
+	
+\begin{table}[H]
+	\centering
+	\scriptsize
+    \caption{Model features and the corresponding coefficients.}
+	\begin{tabular}{|p{6cm}|r|}
+		\hline
+		Variable & Coefficient \\ 
+		\hline
+		\hline
+		intercept & -10.6 \\ 
+		\hline
+		acreage & -0.123 \\ 
+		\hline
+		area\_type & -1.79 \\ 
+		\hline
+		asrYear & 0.00184 \\
+		\hline 
+		baths &    0 \\ 
+		\hline
+		bedrooms & 0.0881 \\ 
+		\hline
+		dailyConsumption & 5.65e-07 \\ 
+		\hline
+		income &    0 \\ 
+		\hline
+		NPV &    0 \\ 
+		\hline
+		numCarStorage & 0.331 \\ 
+		\hline
+		sqFootage &    0 \\ 
+		\hline
+		swimpool & 0.169 \\ 
+		\hline
+		totalVal & -3.66e-07 \\  
+		\hline
+		householdSize & 0.123 \\ 
+		\hline
+		\textbf{climateRegion} & \\
+		PubCold/Very Cold & -1.09 \\ 
+		Hot-Humid & 0.00883 \\ 
+		Mixed-Humid &    0 \\ 
+		\hline
+		\textbf{education} & \\
+		Less than high school diploma or GED & 0 \\
+		High school diploma or GED  & -0.0117 \\ 
+		Some college or Associate’s degree  & 0.332 \\ 
+		Bachelor’s degree  &    0 \\ 
+		Masters, Professional, or Doctorate degree  &    0 \\ 
+		\hline
+		\textbf{fuelheat} & \\
+		Natural gas from underground pipes  & 0 \\ 
+		Propane (bottled gas)  & -0.528 \\ 
+		Fuel oil/kerosene  & 0.269 \\ 
+		Electricity  &    0 \\ 
+		Wood  & 0.472 \\ 
+		\hline
+		\textbf{Type of housing unit} & \\
+		Mobile home  & 0 \\
+		Single-family detached house  & 0.00162 \\ 
+		Single-family attached house  & -0.479 \\
+		\hline
+		\textbf{Neighborhood feature} & \\
+		X1Mile & 0.399 \\ 
+		X2Mile &    0 \\ 
+		X3Mile & 0.0299 \\ 
+		X4Mile & 0.0376 \\ 
+		\hline
+		Indicator feature for totalVal & -1.12 \\ 
+		\hline
+	\end{tabular}
+	\label{tab: model coefficients}
+\end{table}
