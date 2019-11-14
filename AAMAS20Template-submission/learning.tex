@@ -1,0 +1,102 @@
+\section{Active Learning Algorithm}
+We introduce an active learning~\cite{sung95active} method for learning the decision boundary.
+Brief description of active learning.\\
+What is the idea and intention of the proposed method: \\
+to find the correct decision boundary that separates large breakout from small breakouts with minimum number of queries in the parameter space.\\
+\noindent
+Notations:\\
+$start$, $end$ = the endpoints of a line in the 2D parameter search space. These points qualify as end points only if they can separate the search space into small and large outbreaks. \\
+\noindent
+$cMean$, $cStdev$ = mean and standard deviation of the number of adoptions across 20 replicates in the diffusion model at the last time step.\\
+\noindent
+$evaluatedPoints$ = List of labeled points in the 2D parameter search space. A point is labeled as 0 if the mean number of adoptions is less than a certain threshold.\\
+\noindent
+$boundaryPoints$ = List of points in the 2D parameter search space that are close to or on the decision boundary. If the standard deviation of the number of adoptions at the point is greater than a certain threshold, then the point is classified as a boundary point.\\
+Overview of the algo:\\
+Finding points close to the boundary:\\
+1. Choose two points in the 2D parameter search space.\\
+2. Run diffusion model on these points\\
+3. Evaluate output of diffusion model based on thresholds set for mean and stdev of adoptions across multiple runs. Label the point based on the behavior of the outbreak. [Labeled point or boundary point].\\
+4. Perform binary search to choose an appropriate point to proceed. Bin search can only be performed when both ends have opposite labels.\\
+5. Repeat steps 2 to 4, until the boundary condition is satisfied in step 3.\\
+6. Evaluate the adoption behavior of diffusion model for points nearby from the boundary point and label them.
+
+Querying search space to find points intelligently:\\
+To find more boundary points, the parameter search space needs to be queried carefully by exploiting the knowledge gained in the parameter space. To choose the next set of endpoints to perform binary search, we employ an active learning strategy. A binary classifier is trained based on the labeled points in the list $evaluatedPoints$. Two classifiers were tested - Random Forest and SVM linear kernel.
+In order to find the next meaningful point in the 2D search space, we choose a points that is close to or on the current decision boundary, but far away from existing $boundaryPoints$ and $evaluatedPoints$ in the search space. 
+Let this point be $start$. Run the diffusion model at this point and evaluate the point. The $end$ point is chosen such that, it is the farthest point in the search space with an opposite label of the $start$ point.
+
+\begin{algorithm}
+
+\caption{Active learning for predicting decision boundary}
+\label{alg:methodAlgo}
+\begin{algorithmic}[1]
+
+\State $Input$ : $DiffusionModel$,
+2D search space for parameters $p1,p2$ 
+\State $Output$ : $evaluatedPoints$ , $boundaryPoints$
+
+\Procedure{LearnDecisionBoundary}{}
+    \State $start$  = $[p1Min, p2Min]$
+    \State $end$  = $[p1Max, p2Max]$
+    \State $[boundaryPt, bMean, bStdev] = \Call{BinarySearch}{start,end}$
+    \State \Call{EvaluateNearbyPoints}{$boundaryPt$} Add these points to $evaluatedPoints$
+    \State $noRounds$ = 1
+    \While{$noRounds < = 5$}
+        \State \textbf{\textit{$nextPt$}} = \Call{GetNextPointViaActiveLearning}{}
+        \State $[nextPt, nMean, nStdev]$ = \Call{RunDiffusionModel}{$nextPt$}
+        \If{$nStdev >= STDEV-THRESHOLD$ }
+            \State Add $nextPt$ to $boundaryPoints$
+        \Else 
+            \State Add $[nextPt, nMean, nLabel]$ to $evaluatedPoints$
+        \EndIf
+        \State $oppositePt$ = Another point with label opposite to $nLabel$ and farthest from $nextPt$
+        \State $[boundaryPt, bMean, bStdev] = \Call{BinarySearch}{nextPt,oppositePt}$
+        \State \Call{EvaluateNearbyPoints}{$boundaryPt$} Add these points to $evaluatedPoints$
+        
+        \State $noRounds++$
+        
+     \EndWhile
+    
+    \State return \textbf{$evaluatedPoints$ , $boundaryPoints$}
+
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[H] {
+\caption{Binary search to find a potential boundary point}
+\label{alg:boundaryPt}
+\begin{algorithmic}[1]
+\Procedure{BinarySearch}{$pt_1, pt_2$}
+    \State $[pt_1Mean, pt_1Stdev]$ = \Call{RunDiffusionModel}{$pt_1$}
+    \If{$pt_1Stdev >= STDEV-THRESHOLD$ }
+            \State Add $pt_1$ to $boundaryPoints$
+            \State return \textbf{[$pt_1, pt_1Mean, pt_1Stdev$]}
+        \Else 
+            \State Add $[pt_1,pt_1Mean,pt_1Label]$ to $evaluatedPoints$
+    \EndIf
+    \State $[pt_2Mean, pt_2Stdev]$ = \Call{RunDiffusionModel}{$pt_2$}
+    \If{$pt_2Stdev >= STDEV-THRESHOLD$ }
+            \State Add $pt_2$ to $boundaryPoints$
+            \State return \textbf{[$pt_2, pt_2Mean, pt_2Stdev$]}
+        \Else 
+            \State Add $[pt_2,pt_2Mean,pt_2Label]$ to $evaluatedPoints$
+    \EndIf
+    \State $m = (pt_1 + pt_2)/2.0$ 
+    \While{ $m \notin boundaryPoints$ and $pt_1Label \neq pt_2Label$}
+        \State $[mMean, mStdev]$ = \Call{RunDiffusionModel}{$m$}
+        \If{$mStdev >= STDEV-THRESHOLD$ }
+            \State Add $m$ to $boundaryPoints$
+            \State return \textbf{[$m, mMean, mStdev$]}
+        \Else 
+            \State Add $[m,mMean,mLabel]$ to $evaluatedPoints$ 
+        \EndIf
+        \State Assign $m$ to $pt_1$ or $pt_2$, s.t. $pt_1$ and $pt_2$ have different labels
+        \State $m = (pt_1 + pt_2)/2.0$ 
+    \EndWhile
+\EndProcedure
+\end{algorithmic}
+}
+\end{algorithm}

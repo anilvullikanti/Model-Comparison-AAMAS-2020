@@ -1,0 +1,31 @@
+\section{Experiments}
+
+Experiments are done with two agent based models in 3 different geographic regions.
+
+Model presented in Section X is deployed on Rappahannock county in Virginia and Shenandoah Valley Region in Virginia. These are mostly rural areas?
+
+Model presented in Section X is deployed on a zipcode in San Diego.
+
+Following table presents the agent size and range of NPV feature values in all of the three regions. 
+
+The parameters present in the regression model in San Diego region
+
+The parameters present in the regression model in Virginia region
+
+
+The parameters chosen for this experimental setup are Mile 1 and NPV. Explain Mile 1 and NPV meaning. Why these were chosen? Because they were the common features in both models.
+
+
+Setting of thresholds -> min adopter threshold and stdev threshold
+
+Diffusion model results are averaged over 20 replicates. If time out happens then we discard the point or process how many every replicates are completed.
+
+Two types of approaches are used to find a start point for binary search. This is where active learning is employed - to choose points intelligently in space by exploiting the knowledge of boundaryPoints and evaluatedPoints.
+
+First Approach:
+Use SVM linear classifier and generate boundary points around the SVM linear boundary.
+Choose one point from this set that is far away from points in evaluatedPoints and boundaryPoints obtained at that point in time.
+
+Second approach:
+Use Random Forest to train intermediate evaluatedPoints after a boundary point is found. Then choose points that have equal ratio of neighbors with opposite labels. Choose one point from this set that is far away from points in evaluatedPoints and boundaryPoints obtained at that point in time.
+
