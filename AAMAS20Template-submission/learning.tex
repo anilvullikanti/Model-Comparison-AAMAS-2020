@@ -1,9 +1,28 @@
 \section{Active Learning Algorithm}
-We introduce an active learning~\cite{sung95active} method for learning the decision boundary.
-Brief description of active learning.\\
+In this section, we introduce an active learning~\cite{sung95active} method for learning the decision boundary. 
+
+Figure \ref{fig:workflow} gives a general idea of the proposed methodology. A suitable range of the parameter search space is selected
+1. Split into Seed and Unlabelled Datasets
+
+2. Train the binary classifier with seed data
+
+3. Choose an unlabeled instance
+
+4. Repeat step 2-3 until termination condition is reached.
+
+
+
+Stretegy:
+Pool-Based sampling - this setting assumes that there is a large pool of unlabelled data, as with the stream-based selective sampling. Instances are then drawn from the pool according to some informativeness measure. This measure is applied to all instances in the pool (or some subset if the pool is very large) and then the most informative instance(s) are selected.
+
+What quer startegy we use: uncertainty sampling and Variance reduction because we are trying to label those points that would maximize output variance, which is one of the components of error implying we are getting closer to the boundary.
+
+
 What is the idea and intention of the proposed method: \\
-to find the correct decision boundary that separates large breakout from small breakouts with minimum number of queries in the parameter space.\\
-\noindent
+to find the correct decision boundary that separates large breakout from small breakouts with minimum number of queries in the parameter space.
+
+
+
 Notations:\\
 $start$, $end$ = the endpoints of a line in the 2D parameter search space. These points qualify as end points only if they can separate the search space into small and large outbreaks. \\
 \noindent
@@ -11,8 +30,11 @@ $cMean$, $cStdev$ = mean and standard deviation of the number of adoptions acros
 \noindent
 $evaluatedPoints$ = List of labeled points in the 2D parameter search space. A point is labeled as 0 if the mean number of adoptions is less than a certain threshold.\\
 \noindent
-$boundaryPoints$ = List of points in the 2D parameter search space that are close to or on the decision boundary. If the standard deviation of the number of adoptions at the point is greater than a certain threshold, then the point is classified as a boundary point.\\
-Overview of the algo:\\
+$boundaryPoints$ = List of points in the 2D parameter search space that are close to or on the decision boundary. If the standard deviation of the number of adoptions at the point is greater than a certain threshold, then the point is classified as a boundary point.
+
+
+
+
 Finding points close to the boundary:\\
 1. Choose two points in the 2D parameter search space.\\
 2. Run diffusion model on these points\\
