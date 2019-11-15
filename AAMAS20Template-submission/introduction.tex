@@ -36,7 +36,26 @@ but not in that of~\cite{hu19rooftop}. The datasets used in the calibration of t
 characteristics, with a much larger adoption rate in California.
 In order to compare these two ABMs, we study whether it is somehow easier to have a large number of adoptions 
 in one region than another, or whether it is just a chance difference. 
+Our contributions are summarized below.
+\begin{itemize}
+\item
+We design a general methodological framework based on the response surface method. We introduce a notion of
+\emph{characteristic distribution} of an ABM in terms of phase space properties, e.g., phase transitions
+in specific metrics. 
+Finally, we design a machine learning approach based on active learning for quantitatively comparing two ABMs.
+Active learning helps us reduce the number of times the simulation has to be run.
+Our approach is different from direct phase space equivalence type approaches of~\cite{axtell96aligning},
+and instead compares approximate representations of the phase spaces of the ABMs. Thus, this is a much
+more scalable approach for complex ABMs.
+\item
+We illustrate our approach on the two ABMs for comparing solar adoption.
+We formalize model comparison as learning a phase transition boundary in a contagion model. However, since the agent-based simulations are expensive (time-consuming) to run, we develop an active learning method with the simulation in the loop. 
+Our results:
+\end{itemize}
 
-
-
-The rest of this paper is organized as follows. First we present the general methodological framework. Then we describe the two models we are comparing. In this specific case, model comparison requires learning a phase transition boundary in a contagion model. However, since the agent-based simulations are expensive (time-consuming) to run, we develop an active learning method with the simulation in the loop. After describing this method in detail, we present results from computational experiments with the two models. We end with a discussion of related work and future directions.
+\noindent
+\textbf{Organization.}
+The rest of this paper is organized as follows. First we present the general methodological framework
+(Section \ref{sec:framework}).
+Then we describe the two models we are comparing (Section \ref{section:rooftop}).
+After describing this method in detail (Section \ref{sec:learning}), we present results from computational experiments with the two models (Section \ref{sec:experiments}). We end with a discussion of related work and future directions.
