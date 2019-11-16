@@ -1,2 +1,58 @@
 \section{Rooftop Solar Panel Adoption}
 \label{section:rooftop}
+We compare two ABMs for rooftop solar adoption, one built by Zhang et al. for San Diego, California~\cite{zhang16solar} and the other for Shenandoah Valley region in Virginia, as described below in Section~\ref{sec:virginia_model}. They both use a set of demographic, social, economic and geographical variables to assess the probability of adoption for each household in respective study areas. A logistic regression model is built in each case to identify important factors that influence solar adoption. These factors are then used by their respective ABMs to study the diffusion of adoption. Since the solar penetration rate in Virginia is much smaller compared to California, a decision-adjusted logistic regression model was used to handle the issue of class imbalance in Virginia.
+
+\begin{table}[H]
+	\centering
+	\caption{Features used in regression for Virginia model}
+	\begin{tabular}{|l|p{5cm}|}
+		\hline
+		{\bf Feature} & {\bf Description} \\ 
+		\hline
+		acreage & Acreage of the house. \\ 
+		\hline
+		area\_type & Rural (0) or urban (1). \\ 
+		\hline
+		asrYear & Year house was built.  \\ 
+		\hline
+		baths & Num of bathrooms. \\ 
+		\hline
+		bedrooms & Num of bedrooms. \\ 
+		\hline
+		NPV & Net Present Value. \\ 
+		\hline
+		climateRegionPub & Type of climate. \\ 
+		\hline
+		dailyConsumption & Avg. electricity used in Watt
+                                   hrs. \\ 
+		\hline
+		education & Highest education achieved. \\ 
+		\hline
+	    fuelheat & Type of fuel used for heat. \\ 
+	    \hline
+		income & Household's yearly income.  \\ 
+		\hline
+		numCarStorage & Num. of car storage in the house. \\
+		\hline 
+		sqFootage & Sq. footage of the house.  \\ 
+		\hline
+		swimpool & Pool present or not. \\ 
+		\hline
+		totalVal & Estimated house value. \\
+		\hline 
+		typehuq & Type of housing unit. \\ 
+		\hline
+		householdSize & Family size. \\ 
+		\hline
+		%X1Mile & Adopters within 1 mile. \\ 
+		%X2Mile & Adopters within 2 mile. \\ 
+		%X3Mile & Adopters within 3 mile. \\ 
+		%X4Mile & Adopters within 4 mile. \\ 
+		Mile1 & Adopters within 1 mile. \\ 
+		Mile2 & Adopters within 2 mile. \\ 
+		Mile3 & Adopters within 3 mile. \\ 
+		Mile4 & Adopters within 4 mile. \\
+		\hline
+	\end{tabular}
+	\label{tab: feature description}
+\end{table}

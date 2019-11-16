@@ -1,52 +1,58 @@
-\section{Active Learning Algorithm}
+\section{Model Comparison Method}
+\label{sec:learning}
+
+% {\color{magenta} Use the reference of framework section to write this scetion more formally}\\
+
+In this section, we instantiate the framework described in Section~\ref{sec:framework} to compare the models described in Section~\ref{section:rooftop}. 
+Both the Virginia model and the San Diego model are network contagion models,
+where a contagion (in this case a technology: rooftop solar panels) spreads through a network. Both models belong to the general class of $SI$ contagion models,
+drawn from mathematical epidemiology, where $S$ stands for $Susceptible$
+and $I$ stands for $Infectious$. In our case, $Infectious$ corresponds to adopter. Once a household has adopted solar panels, their peer influence on their neighbors is assumed to persist indefinitely.
+This means that, in the limit, all households in both models will be adopters, as
+long as the parameters are set in such a way that the probability of adoption if at
+least one neighbor has adopted is non-zero. However, depending on the parameter
+settings, it can be the case that the probabilities of adoption are so low that 
+we see very few adoptions in the duration for which the simulations are run. Network
+structure can also play a role in speeding up or slowing down the spread of the 
+contagion through the network.
+
+As the probability of adoption increases, the SI model undergoes a phase transition,
+where the simulation shows a sharp qualitative change in its behavior. As the probability of adoption crosses a threshold, the simulation quickly changes from only a few nodes being adopters to a lot (or most) of the nodes becoming adopters in a short amount of time. Due to this qualitative behavior, we choose just two bins to describe each simulation in Section~\ref{section:rooftop}, corresponding to small and large numbers of adopters. The actual values chosen are listed in Section~\ref{sec:experiments}.
+
+Another nice aspect of this scenario is that the variance in the output of the 
+simulation shows a sharp peak at the phase transition boundary, and tends to be low
+away from the boundary. This is illustrated in Figure~\ref{fig:diagDisplay}. Thus, by running multiple runs of the simulation for any 
+chosen point in parameter space, we get a clear signal if the point is close to the phase transition boundary. We make use of this fact in our active learning algorithm below.
+
 In this section, we introduce an active learning~\cite{sung95active} method for learning the decision boundary. 
+Figure \ref{fig:workflow} gives a general idea of the proposed methodology. The goal of the proposed method is
+to learn the decision boundary that separates large breakout from small breakouts with minimum number of queries in the parameter space.
 
-Figure \ref{fig:workflow} gives a general idea of the proposed methodology. A suitable range of the parameter search space is selected
-1. Split into Seed and Unlabelled Datasets
-
-2. Train the binary classifier with seed data
-
-3. Choose an unlabeled instance
-
-4. Repeat step 2-3 until termination condition is reached.
-
-
-
-Stretegy:
-Pool-Based sampling - this setting assumes that there is a large pool of unlabelled data, as with the stream-based selective sampling. Instances are then drawn from the pool according to some informativeness measure. This measure is applied to all instances in the pool (or some subset if the pool is very large) and then the most informative instance(s) are selected.
-
-What quer startegy we use: uncertainty sampling and Variance reduction because we are trying to label those points that would maximize output variance, which is one of the components of error implying we are getting closer to the boundary.
-
-
-What is the idea and intention of the proposed method: \\
-to find the correct decision boundary that separates large breakout from small breakouts with minimum number of queries in the parameter space.
-
-
-
-Notations:\\
-$start$, $end$ = the endpoints of a line in the 2D parameter search space. These points qualify as end points only if they can separate the search space into small and large outbreaks. \\
+Notations used in the remainder of the paper for method description, results and discussion:\\
+$start$, $end$ = the endpoints of a line in the 2D parameter search space on which binary search is performed. These points qualify as end points only if they can separate the search space into small and large outbreaks. \\
 \noindent
-$cMean$, $cStdev$ = mean and standard deviation of the number of adoptions across 20 replicates in the diffusion model at the last time step.\\
+$pMean$, $pStdev$ = mean and standard deviation of the number of adoptions across 20 replicates of the diffusion model at the last time step. In this instance, the diffusion model (or ABM) is evaluated at $p$.\\
 \noindent
 $evaluatedPoints$ = List of labeled points in the 2D parameter search space. A point is labeled as 0 if the mean number of adoptions is less than a certain threshold.\\
 \noindent
 $boundaryPoints$ = List of points in the 2D parameter search space that are close to or on the decision boundary. If the standard deviation of the number of adoptions at the point is greater than a certain threshold, then the point is classified as a boundary point.
 
+Initially, a suitable range of the parameter search space is selected. In our experiments, the search space is instantiated with two parameters. 
+A seed labeled dataset is created from the search space to train the classifier the first time. 
+Binary search is performed across the diagonal of the parameter space to find a potential boundary point, followed by querying neighboring points of such a boundary point with uncertainty sampling.
+% TODO: Roughly 5-10 points are labeled -> this means how much % of data is labeled for first training of the classifier. 
+% Why we look for variacne of the point - describe that in 1 sentence
+The classifier is then trained on this seed dataset.
+
+Further iterations generate more labeled data by intelligently querying unlabeled instances in the parameter search space by employing uncertainty sampling technique.
+To find potential boundary points, the algorithm exploits the knowledge gained in terms of the decision boundary, $evaluatedPoints$, and $boundaryPoints$ in the parameter space. To choose the next set of endpoints to perform binary search, a point $start$, is chosen such that it is close to or on the current decision boundary, but far away from existing $boundaryPoints$ and $evaluatedPoints$ in the search space. 
+Evaluate the ABM outcome at $start$ in terms of $sMean$ and $sStdev$. The $end$ point is chosen from $evaluatedPoints$ such that, it is the farthest point from $start$ and with an opposite label of the $start$ point. Points are queried in the search space until the termination condition is reached.
+% Roughly how much % of points is queried at the end as compared to the area of the search space
+
+%Once the point is queried, mean and standard deviation are used to evaluate the role of the queried point. If a point is found to be potentially very close to/on the boundary, then, the classifier is trained on the incremental set of labeled points. The knowledge of the latest decision boundary also influences the choice of unlabeled point tp be queried.
 
 
 
-Finding points close to the boundary:\\
-1. Choose two points in the 2D parameter search space.\\
-2. Run diffusion model on these points\\
-3. Evaluate output of diffusion model based on thresholds set for mean and stdev of adoptions across multiple runs. Label the point based on the behavior of the outbreak. [Labeled point or boundary point].\\
-4. Perform binary search to choose an appropriate point to proceed. Bin search can only be performed when both ends have opposite labels.\\
-5. Repeat steps 2 to 4, until the boundary condition is satisfied in step 3.\\
-6. Evaluate the adoption behavior of diffusion model for points nearby from the boundary point and label them.
-
-Querying search space to find points intelligently:\\
-To find more boundary points, the parameter search space needs to be queried carefully by exploiting the knowledge gained in the parameter space. To choose the next set of endpoints to perform binary search, we employ an active learning strategy. A binary classifier is trained based on the labeled points in the list $evaluatedPoints$. Two classifiers were tested - Random Forest and SVM linear kernel.
-In order to find the next meaningful point in the 2D search space, we choose a points that is close to or on the current decision boundary, but far away from existing $boundaryPoints$ and $evaluatedPoints$ in the search space. 
-Let this point be $start$. Run the diffusion model at this point and evaluate the point. The $end$ point is chosen such that, it is the farthest point in the search space with an opposite label of the $start$ point.
 
 \begin{algorithm}
 
@@ -89,7 +95,7 @@ Let this point be $start$. Run the diffusion model at this point and evaluate th
 
 \begin{algorithm}[H] {
 \caption{Binary search to find a potential boundary point}
-\label{alg:boundaryPt}
+\label{alg:binSearch}
 \begin{algorithmic}[1]
 \Procedure{BinarySearch}{$pt_1, pt_2$}
     \State $[pt_1Mean, pt_1Stdev]$ = \Call{RunDiffusionModel}{$pt_1$}

@@ -1,4 +1,5 @@
 \subsection{The Virginia Model} \label{virginia_model}
+
 We build a statistical model to identify features that contribute to a household's decision to adopt rooftop solar panels.
 However, due to low penetration of solar adopters in rural regions, the data on
 solar adopters is sparse, which makes it difficult to build a good
@@ -15,60 +16,6 @@ evaluation criterion. We set this criteria to maximize the sum of True
 Positive Rate and True Negative Rate. The decision-adjusted approach can be applied to
 different statistical models, here we choose logistic regression model as
 our baseline model.
-
-
-
-\begin{table}[H]
-	\centering
-	\caption{This table provides the list of features used in the
-          regression model.}
-	\begin{tabular}{|l|p{5cm}|}
-		\hline
-		{\bf Feature} & {\bf Description} \\ 
-		\hline
-		acreage & Acreage of the house. \\ 
-		\hline
-		area\_type & Rural (0) or urban (1). \\ 
-		\hline
-		asrYear & Year house was built.  \\ 
-		\hline
-		baths & Num of bathrooms. \\ 
-		\hline
-		bedrooms & Num of bedrooms. \\ 
-		\hline
-		NPV & Net Present Value. \\ 
-		\hline
-		climateRegionPub & Type of climate. \\ 
-		\hline
-		dailyConsumption & Avg. electricity used in Watt
-                                   hrs. \\ 
-		\hline
-		education & Highest education achieved. \\ 
-		\hline
-	    fuelheat & Type of fuel used for heat. \\ 
-	    \hline
-		income & Household's yearly income.  \\ 
-		\hline
-		numCarStorage & Num. of car storage in the house. \\
-		\hline 
-		sqFootage & Sq. footage of the house.  \\ 
-		\hline
-		swimpool & Pool present or not. \\ 
-		\hline
-		totalVal & Estimated house value. \\
-		\hline 
-		typehuq & Type of housing unit. \\ 
-		\hline
-		householdSize & Family size. \\ 
-		\hline
-		X1Mile & Adopters within 1 mile. \\ 
-		X2Mile & Adopters within 2 mile. \\ 
-		X3Mile & Adopters within 3 mile. \\ 
-		X4Mile & Adopters within 4 mile. \\ 
-		\hline
-	\end{tabular}
-	\label{tab: feature description}
-\end{table}
 
 The decision-adjusted solar adopter prediction model is as
 follows. Suppose a prediction model is obtained from data
@@ -145,11 +92,10 @@ $\bullet$ $\tau = 0.0022$, a household with predicted probability greater than 0
 $\bullet$ $\lambda = 0.000303$, $\alpha = 0.4$, which are values of tuning parameters in enet penalty.\\
 $\bullet$ $\delta(\text{totalVal}) = 75000$, if the value of feature totalVal is greater than 75000, then the value of the corresponding indicator feature is 1.\\
 
-	
 \begin{table}[H]
 	\centering
 	\scriptsize
-    \caption{Model features and the corresponding coefficients.}
+    \caption{Virginia model features and the corresponding coefficients.}
 	\begin{tabular}{|p{6cm}|r|}
 		\hline
 		Variable & Coefficient \\ 
@@ -208,10 +154,14 @@ $\bullet$ $\delta(\text{totalVal}) = 75000$, if the value of feature totalVal is
 		Single-family attached house  & -0.479 \\
 		\hline
 		\textbf{Neighborhood feature} & \\
-		X1Mile & 0.399 \\ 
-		X2Mile &    0 \\ 
-		X3Mile & 0.0299 \\ 
-		X4Mile & 0.0376 \\ 
+		%X1Mile & 0.399 \\ 
+		%X2Mile &    0 \\ 
+		%X3Mile & 0.0299 \\ 
+		%X4Mile & 0.0376 \\ 
+		Mile1 & 0.399 \\ 
+		Mile2 &    0 \\ 
+		Mile3 & 0.0299 \\ 
+		Mile4 & 0.0376 \\
 		\hline
 		Indicator feature for totalVal & -1.12 \\ 
 		\hline

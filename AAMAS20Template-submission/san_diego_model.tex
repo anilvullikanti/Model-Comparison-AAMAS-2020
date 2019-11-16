@@ -3,7 +3,36 @@
 
 The San Diego model was developed by Zhang et al.~\cite{zhang16solar}. The model was trained on extensive data collected to the California Solar Initiative \url{https://www.gosolarcalifornia.ca.gov/about/csi.php}. In addition, property assessment data for San Diegor county and electricity utilization data for participants in the rebate program was collect (energy utilization data as limited to the 12 months before adoption). The data set spanned 6 years and 8500 adopters and included detailed information about the solar panel purchasing decision, including the system size, reported cost, incentive, whether the system was purchased or leased and date of adoption.
 
-The ABM developed from this data used machine learning techniques to train an individual model of solar panel adoption behavior. Individuals agents changed their behavior based on household characteristics, seasons and peer-effects. \cite{zhang16solar} provides details on the specific variables used and the results. 
+The ABM developed from this data used machine learning techniques to train an individual model of solar panel adoption behavior. Individual agents changed their behaviors based on household characteristics, seasons and peer-effects. \cite{zhang16solar} provides details on the specific variables used and the results. Table \ref{tab: sandiaFeatures} summarizes the variables of the model.
 
-For this work we used the model provided here: \url{https://github.com/haifeng-zhang/ddabm-solar} which focused on modeling a single zipcode within the San Diegor region. For this work we used the model provided here: \url{https://github.com/haifeng-zhang/ddabm-solar} which focused on modeling a single zipcode within the San Diegor region. 
+For this work we used the model provided here: \url{https://github.com/haifeng-zhang/ddabm-solar} which focused on modeling a single zip code within the San Diego region. 
+
+\begin{table}[H]
+	\centering
+	\caption{List of features in the San Diego model}
+	\begin{tabular}{|l|p{6cm}|}
+		\hline
+		{\bf Feature} & {\bf Description} \\ 
+		\hline
+		ownerocc & Owner occupied (binary)\\ 
+		\hline
+		Ls & Lease option available (binary)\\
+		\hline
+		wt & Winter (binary)\\
+		\hline
+		st & Spring (binary)\\
+		\hline
+		sm & Summer (binary)\\
+		\hline
+		fracInstall & Installation density in zipcode\\
+		\hline
+		NPV & NPV (Purchase)\\
+		\hline
+		Mile1 & Installations within 1 mile radius. \\ 
+		Mile1/4 & Installations within one fourth mile radius. \\ 
+		
+		\hline
+	\end{tabular}
+	\label{tab: sandiaFeatures}
+\end{table}
 
